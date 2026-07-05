@@ -1,6 +1,6 @@
 # Task Manager API
 
-[![CI](https://github.com/SEU-USUARIO/TaskManager/actions/workflows/ci.yml/badge.svg)](https://github.com/SEU-USUARIO/TaskManager/actions/workflows/ci.yml)
+[![CI](https://github.com/pehenriqueoliv/TaskManager/actions/workflows/ci.yml/badge.svg)](https://github.com/pehenriqueoliv/TaskManager/actions/workflows/ci.yml)
 
 API de gerenciamento de tarefas construída como projeto de portfólio para demonstrar
 domínio de **.NET idiomático**. Um usuário organiza **projetos**, e cada projeto tem
