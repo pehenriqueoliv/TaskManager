@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { ConfirmDialog } from '../components/ConfirmDialog'
 import { NewTaskForm } from '../components/NewTaskForm'
 import { PriorityFilter } from '../components/PriorityFilter'
 import { TaskBoard } from '../components/TaskBoard'
@@ -12,6 +13,7 @@ import type { Task, TaskPriority, TaskStatus } from '../types'
 export function ProjectDetailPage() {
   const { projectId = '' } = useParams()
   const [priority, setPriority] = useState<TaskPriority | 'all'>('all')
+  const [taskTarget, setTaskTarget] = useState<Task | null>(null)
 
   const project = useProject(projectId)
   const tasks = useTasks(projectId, priority === 'all' ? {} : { priority })
@@ -31,8 +33,9 @@ export function ProjectDetailPage() {
     })
   }
 
-  function handleDelete(task: Task) {
-    deleteTask.mutate(task.id)
+  function confirmDeleteTask() {
+    if (!taskTarget) return
+    deleteTask.mutate(taskTarget.id, { onSettled: () => setTaskTarget(null) })
   }
 
   const pendingId = updateTask.isPending
@@ -67,11 +70,21 @@ export function ProjectDetailPage() {
               tasks={tasks.data}
               pendingId={pendingId}
               onMove={handleMove}
-              onDelete={handleDelete}
+              onDelete={setTaskTarget}
             />
           ) : null}
         </>
       )}
+
+      <ConfirmDialog
+        open={taskTarget !== null}
+        title="Excluir task"
+        message={`"${taskTarget?.title}" será excluída. Essa ação não pode ser desfeita.`}
+        confirmLabel="Excluir task"
+        pending={deleteTask.isPending}
+        onConfirm={confirmDeleteTask}
+        onCancel={() => setTaskTarget(null)}
+      />
     </>
   )
 }
