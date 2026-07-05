@@ -16,5 +16,22 @@ services:
       timeout: 5s
       retries: 5
 
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: taskmanager-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_HTTP_PORTS: "8080"
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=taskmanager;Username=taskmanager;Password=taskmanager"
+      Jwt__Key: "${JWT_KEY:-dev-only-insecure-signing-key-change-me-please-min-32-bytes}"
+    ports:
+      - "5023:8080"
+    restart: unless-stopped
+
 volumes:
   taskmanager-pgdata:

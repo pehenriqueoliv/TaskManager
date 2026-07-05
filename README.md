@@ -20,6 +20,7 @@ suas **tarefas** (com status, prioridade e prazo).
 TaskManager/
 ├── backend/
 │   ├── TaskManager.slnx
+│   ├── Dockerfile           imagem da API (.NET, multi-stage)
 │   ├── src/TaskManager.Api/
 │   │   ├── Controllers/     endpoints HTTP (camada fina)
 │   │   ├── Services/        regras de negócio
@@ -36,27 +37,46 @@ TaskManager/
 │       ├── hooks/           queries e mutations (React Query)
 │       ├── components/      Board, TaskCard, formulários, estados
 │       └── pages/           Login, Projetos, Detalhe do projeto
-├── docker-compose.yml       PostgreSQL para desenvolvimento
+├── docker-compose.yml       PostgreSQL + API (containerizada)
 └── README.md
 ```
 
 ## Pré-requisitos
 
-- [.NET SDK 10](https://dotnet.microsoft.com/)
-- [Docker](https://www.docker.com/) (para subir o PostgreSQL)
-- Ferramenta de linha de comando do EF Core:
+- [Docker](https://www.docker.com/) — obrigatório para o PostgreSQL (e, opcionalmente, para a API)
+- Para rodar o back-end localmente (hot reload): [.NET SDK 10](https://dotnet.microsoft.com/) e a CLI do EF Core:
   ```bash
   dotnet tool install --global dotnet-ef
   ```
 
-## Como rodar (desenvolvimento)
+## Rodar com Docker (API + banco)
 
-### 1. Subir o banco
-
-Da raiz do repositório:
+O caminho mais rápido: sobe **PostgreSQL + API** com um comando, sem precisar do .NET
+instalado. Da raiz do repositório:
 
 ```bash
-docker compose up -d
+docker compose up -d --build
+```
+
+- API: `http://localhost:5023` · Swagger: `http://localhost:5023/swagger`
+- A API espera o banco ficar saudável (`depends_on` + healthcheck) e aplica as migrations no startup.
+- A chave do JWT vem da variável `JWT_KEY` (há um valor padrão só para dev). Para usar a sua,
+  crie um `.env` na raiz do repositório:
+  ```bash
+  echo "JWT_KEY=$(head -c 48 /dev/urandom | base64)" > .env
+  ```
+- Para parar: `docker compose down` (use `-v` para apagar também o volume do banco).
+
+O front-end continua rodando à parte (veja a seção **Front-end**).
+
+## Rodar o back-end localmente (hot reload)
+
+Alternativa para desenvolver a API com `dotnet run`.
+
+### 1. Subir apenas o banco
+
+```bash
+docker compose up -d postgres
 ```
 
 Isso sobe um PostgreSQL na porta **5433** do host (mapeada para a 5432 do container,
@@ -224,3 +244,4 @@ Abre em `http://localhost:5173`. A URL da API vem de `VITE_API_BASE_URL`
 - **Fase 2 ✓:** ASP.NET Core Identity + JWT (access + refresh), proteção dos endpoints e escopo por usuário.
 - **Fase 3 ✓:** testes com xUnit + Moq nos Services.
 - **Fase 4 ✓:** front-end React + TypeScript (Vite + React Query).
+- **Extra ✓:** Dockerfile multi-stage da API e `docker compose` subindo API + banco juntos.
