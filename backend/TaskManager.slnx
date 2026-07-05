@@ -2,4 +2,7 @@
   <Folder Name="/src/">
     <Project Path="src/TaskManager.Api/TaskManager.Api.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/TaskManager.Tests/TaskManager.Tests.csproj" />
+  </Folder>
 </Solution>

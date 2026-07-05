@@ -20,14 +20,15 @@ suas **tarefas** (com status, prioridade e prazo).
 TaskManager/
 ├── backend/
 │   ├── TaskManager.slnx
-│   └── src/TaskManager.Api/
-│       ├── Controllers/     endpoints HTTP (camada fina)
-│       ├── Services/        regras de negócio
-│       ├── Data/            AppDbContext
-│       ├── Entities/        entidades de domínio (Project, TaskItem, enums)
-│       ├── Dtos/            records de request/response
-│       ├── Common/          exceções de domínio, handler global, JWT, ICurrentUser
-│       └── Migrations/      migrations do EF Core
+│   ├── src/TaskManager.Api/
+│   │   ├── Controllers/     endpoints HTTP (camada fina)
+│   │   ├── Services/        regras de negócio
+│   │   ├── Data/            AppDbContext
+│   │   ├── Entities/        entidades de domínio (Project, TaskItem, enums)
+│   │   ├── Dtos/            records de request/response
+│   │   ├── Common/          exceções de domínio, handler global, JWT, ICurrentUser
+│   │   └── Migrations/      migrations do EF Core
+│   └── tests/TaskManager.Tests/   testes de unidade dos Services (xUnit + Moq)
 ├── frontend/                reservado para a Fase 4
 ├── docker-compose.yml       PostgreSQL para desenvolvimento
 └── README.md
@@ -159,9 +160,31 @@ Filtros opcionais no GET de tasks via query string:
 - `DueDate` no passado na criação de uma task é rejeitado com **400**.
 - Erros seguem o formato **Problem Details (RFC 7807)**.
 
+## Testes
+
+Testes de unidade dos Services com **xUnit** e **Moq**:
+
+```bash
+cd backend
+dotnet test
+```
+
+Estratégia:
+
+- **`ProjectService` / `TaskService`** são testados contra um **SQLite in-memory** (banco
+  relacional real), não com um `DbContext` mockado. Isso permite testar de verdade o
+  **cascade delete** e o escopo por usuário, exercitando o SQL gerado. Mockar `DbContext`
+  é frágil e não fiel, por isso não é usado aqui.
+- **`AuthService`** é testado com **Moq** nos colaboradores (`UserManager`, `ITokenService`),
+  cobrindo rotação de refresh token e falhas de autenticação.
+- **`TokenService`** é testado diretamente (hash determinístico, unicidade dos tokens).
+
+Casos cobertos incluem: acesso a recurso de outro usuário (**404**), `DueDate` no passado
+(**400**), cascade delete, filtros de task e o fluxo de register/login/refresh.
+
 ## Roadmap
 
 - **Fase 1 ✓:** scaffold, EF Core + PostgreSQL, entidades, migrations, CRUD de Project e Task.
 - **Fase 2 ✓:** ASP.NET Core Identity + JWT (access + refresh), proteção dos endpoints e escopo por usuário.
-- **Fase 3:** testes com xUnit + Moq nos Services.
+- **Fase 3 ✓:** testes com xUnit + Moq nos Services.
 - **Fase 4:** front-end React + TypeScript (Vite + React Query).
