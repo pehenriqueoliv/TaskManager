@@ -13,6 +13,7 @@ public class GlobalExceptionHandler(IProblemDetailsService problemDetailsService
         {
             NotFoundException => (StatusCodes.Status404NotFound, "Resource not found"),
             BadRequestException => (StatusCodes.Status400BadRequest, "Invalid request"),
+            UnauthorizedException => (StatusCodes.Status401Unauthorized, "Authentication failed"),
             _ => (StatusCodes.Status500InternalServerError, "An unexpected error occurred")
         };
 

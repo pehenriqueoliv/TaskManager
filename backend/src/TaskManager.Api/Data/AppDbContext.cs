@@ -1,12 +1,16 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using TaskManager.Api.Entities;
 
 namespace TaskManager.Api.Data;
 
-public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+public class AppDbContext(DbContextOptions<AppDbContext> options)
+    : IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>(options)
 {
     public DbSet<Project> Projects => Set<Project>();
     public DbSet<TaskItem> Tasks => Set<TaskItem>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -19,6 +23,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             project.Property(p => p.Description).HasMaxLength(2000);
             project.Property(p => p.OwnerId).IsRequired();
             project.HasIndex(p => p.OwnerId);
+
+            project.HasOne<AppUser>()
+                .WithMany()
+                .HasForeignKey(p => p.OwnerId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             project.HasMany(p => p.Tasks)
                 .WithOne(t => t.Project)
@@ -34,6 +43,18 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             task.Property(t => t.Status).HasConversion<string>().HasMaxLength(20);
             task.Property(t => t.Priority).HasConversion<string>().HasMaxLength(20);
             task.HasIndex(t => t.ProjectId);
+        });
+
+        modelBuilder.Entity<RefreshToken>(token =>
+        {
+            token.HasKey(t => t.Id);
+            token.Property(t => t.TokenHash).IsRequired().HasMaxLength(200);
+            token.HasIndex(t => t.TokenHash).IsUnique();
+
+            token.HasOne<AppUser>()
+                .WithMany()
+                .HasForeignKey(t => t.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }
