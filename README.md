@@ -1,10 +1,26 @@
 # Task Manager API
 
+[![CI](https://github.com/SEU-USUARIO/TaskManager/actions/workflows/ci.yml/badge.svg)](https://github.com/SEU-USUARIO/TaskManager/actions/workflows/ci.yml)
+
 API de gerenciamento de tarefas construída como projeto de portfólio para demonstrar
 domínio de **.NET idiomático**. Um usuário organiza **projetos**, e cada projeto tem
 suas **tarefas** (com status, prioridade e prazo).
 
 > Projeto em construção por fases. Esta é a documentação acumulada; cada fase amplia o escopo.
+
+## Telas
+
+**Login**
+
+![Tela de login](docs/login.png)
+
+**Projetos**
+
+![Lista de projetos do usuário](docs/projects.png)
+
+**Dentro de um projeto**
+
+![Board de tasks de um projeto](docs/project-board.png)
 
 ## Stack
 
