@@ -12,7 +12,7 @@ suas **tarefas** (com status, prioridade e prazo).
 - **Persistência:** Entity Framework Core + PostgreSQL (provider Npgsql)
 - **Documentação/testes manuais:** Swagger (Swashbuckle)
 - **Autenticação:** ASP.NET Core Identity + JWT (access + refresh token)
-- **Front-end:** React + TypeScript com Vite _(Fase 4)_
+- **Front-end:** React + TypeScript com Vite, TanStack Query (React Query), axios e React Router
 
 ## Estrutura do monorepo
 
@@ -29,7 +29,13 @@ TaskManager/
 │   │   ├── Common/          exceções de domínio, handler global, JWT, ICurrentUser
 │   │   └── Migrations/      migrations do EF Core
 │   └── tests/TaskManager.Tests/   testes de unidade dos Services (xUnit + Moq)
-├── frontend/                reservado para a Fase 4
+├── frontend/                app React + TypeScript (Vite)
+│   └── src/
+│       ├── api/             cliente axios (Bearer + refresh) e chamadas
+│       ├── auth/            AuthContext (token + sessão)
+│       ├── hooks/           queries e mutations (React Query)
+│       ├── components/      Board, TaskCard, formulários, estados
+│       └── pages/           Login, Projetos, Detalhe do projeto
 ├── docker-compose.yml       PostgreSQL para desenvolvimento
 └── README.md
 ```
@@ -182,9 +188,39 @@ Estratégia:
 Casos cobertos incluem: acesso a recurso de outro usuário (**404**), `DueDate` no passado
 (**400**), cascade delete, filtros de task e o fluxo de register/login/refresh.
 
+## Front-end
+
+App em React + TypeScript (Vite) que consome a API.
+
+### Rodar
+
+Com a API no ar (porta 5023), em outro terminal:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Abre em `http://localhost:5173`. A URL da API vem de `VITE_API_BASE_URL`
+(`frontend/.env.development`, padrão `http://localhost:5023/api`).
+
+### O que tem
+
+- **Login / cadastro** numa única tela; o par de tokens é guardado no `localStorage`.
+- **Refresh automático:** um interceptor do axios injeta o `Bearer` e, ao receber **401**,
+  troca o refresh token por um novo par e repete a requisição (com _single-flight_ para não
+  disparar vários refreshes em paralelo). Se o refresh falhar, a sessão é encerrada.
+- **Rotas protegidas:** sem sessão, redireciona para o login.
+- **Projetos:** criar, listar e excluir (excluir apaga as tasks em cascade no back-end).
+- **Board de tasks** (colunas Todo / Em progresso / Concluído): criar, mover entre colunas
+  (via `PUT`), excluir e filtrar por prioridade (via query na API).
+- **Estado das chamadas com React Query:** cache, `isLoading`/`isError` e invalidação
+  automática após cada mutation.
+
 ## Roadmap
 
 - **Fase 1 ✓:** scaffold, EF Core + PostgreSQL, entidades, migrations, CRUD de Project e Task.
 - **Fase 2 ✓:** ASP.NET Core Identity + JWT (access + refresh), proteção dos endpoints e escopo por usuário.
 - **Fase 3 ✓:** testes com xUnit + Moq nos Services.
-- **Fase 4:** front-end React + TypeScript (Vite + React Query).
+- **Fase 4 ✓:** front-end React + TypeScript (Vite + React Query).
