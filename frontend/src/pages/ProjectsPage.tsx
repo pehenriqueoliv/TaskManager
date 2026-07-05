@@ -1,3 +1,5 @@
+import { useState } from 'react'
+import { ConfirmDialog } from '../components/ConfirmDialog'
 import { NewProjectForm } from '../components/NewProjectForm'
 import { ProjectCard } from '../components/ProjectCard'
 import { EmptyState, ErrorState, Loading } from '../components/states'
@@ -8,11 +10,11 @@ import type { Project } from '../types'
 export function ProjectsPage() {
   const projects = useProjects()
   const deleteProject = useDeleteProject()
+  const [target, setTarget] = useState<Project | null>(null)
 
-  function handleDelete(project: Project) {
-    if (window.confirm(`Excluir "${project.name}" e todas as suas tasks?`)) {
-      deleteProject.mutate(project.id)
-    }
+  function confirmDelete() {
+    if (!target) return
+    deleteProject.mutate(target.id, { onSettled: () => setTarget(null) })
   }
 
   return (
@@ -37,10 +39,20 @@ export function ProjectsPage() {
       {projects.data && projects.data.length > 0 ? (
         <div className="projects-grid">
           {projects.data.map((project) => (
-            <ProjectCard key={project.id} project={project} onDelete={handleDelete} />
+            <ProjectCard key={project.id} project={project} onDelete={setTarget} />
           ))}
         </div>
       ) : null}
+
+      <ConfirmDialog
+        open={target !== null}
+        title="Excluir projeto"
+        message={`"${target?.name}" e todas as suas tasks serão excluídos. Essa ação não pode ser desfeita.`}
+        confirmLabel="Excluir projeto"
+        pending={deleteProject.isPending}
+        onConfirm={confirmDelete}
+        onCancel={() => setTarget(null)}
+      />
     </>
   )
 }

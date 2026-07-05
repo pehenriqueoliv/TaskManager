@@ -233,6 +233,16 @@ button {
   color: var(--danger);
 }
 
+.btn--danger-solid {
+  background: var(--danger);
+  color: #fff;
+  border-color: transparent;
+}
+
+.btn--danger-solid:hover:not(:disabled) {
+  background: #bf3a31;
+}
+
 .btn--block {
   width: 100%;
 }
@@ -709,6 +719,67 @@ button {
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background: rgba(20, 20, 30, 0.4);
+  backdrop-filter: blur(3px);
+  animation: overlay-in 0.15s ease;
+}
+
+.dialog {
+  width: 100%;
+  max-width: 420px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 20px 50px rgba(20, 20, 30, 0.25);
+  padding: 1.6rem;
+  animation: dialog-in 0.16s ease;
+}
+
+.dialog__title {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.dialog__message {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.55;
+  margin: 0 0 1.5rem;
+}
+
+.dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 
